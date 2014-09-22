@@ -11,7 +11,7 @@ namespace RecEngModel
         // lists to search through books and raters
         List<Book> bookList;
         List<Rater> raterList;
-
+         
         // Model object to be passed to viewer and controller.
         public Model()
         {
