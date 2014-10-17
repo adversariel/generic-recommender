@@ -62,5 +62,23 @@ namespace RecEngModel
             m.addRater("Roger Ebert");
             m.addRater("Roger Ebert");
         }
+
+        [TestMethod]
+        public void TestBookAddRating()
+        {
+            Book b = new Book("Theoretical Neuroscience", "Peter Dayan");
+            Rater r = new Rater("Santiago Ramón y Cajal");
+            b.addRating(r, (float)5.0);
+            Assert.AreEqual(r.ratedBooks[b], (float)5.0);
+        }
+
+        [TestMethod]
+        public void TestRaterAddRating()
+        {
+            Book b = new Book("The Visual Display of Quantitative Information", "Edward Tufte");
+            Rater r = new Rater("John Tukey");
+            r.addRating(b, (float)5.0);
+            Assert.AreEqual(b.bookRating[r], (float)5.0);
+        }
     }
 }

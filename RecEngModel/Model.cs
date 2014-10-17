@@ -116,20 +116,20 @@ namespace RecEngModel
     }
 
     /// <summary>
-    /// Book object for recommendation system. Contains a title, author, and rating.
+    /// Book object for recommendation system.
     /// </summary>
     public class Book
     {
         public String title;
         public String author;
-        public Dictionary<Rater, double> bookRating;
+        public Dictionary<Rater, float> bookRating;
 
         // constructor
         public Book(String title, String author)
         {
             this.title = title;
             this.author = author;
-            this.bookRating = new Dictionary<Rater, double>();
+            this.bookRating = new Dictionary<Rater, float>();
         }
 
         // operator overload
@@ -146,21 +146,33 @@ namespace RecEngModel
                 return false;
             }
         }
+
+        // add rating to bookRating dictionary
+        public void addRating(Rater rater, float rating)
+        {
+            // check if rater exists
+            if (rater == null)
+                throw new NullReferenceException();
+
+            // add rating to both dictionaries
+            bookRating.Add(rater, rating);
+            rater.ratedBooks.Add(this, rating);
+        }
     }
 
     /// <summary>
-    /// Rater object for recommendation system. Contains a name and rating.
+    /// Rater object for recommendation system.
     /// </summary>
     public class Rater
     {
         public String name;
-        public Dictionary<Book, double> raterRating;
+        public Dictionary<Book, float> ratedBooks;
 
         // constructor
         public Rater(String name)
         {
             this.name = name;
-            this.raterRating = new Dictionary<Book, double>();
+            this.ratedBooks = new Dictionary<Book, float>();
         }
 
         // operator overload
@@ -176,6 +188,18 @@ namespace RecEngModel
             {
                 return false;
             }
+        }
+
+        // add rating to ratedBooks dictionary
+        public void addRating(Book book, float rating)
+        {
+            // check if book exists
+            if (book == null)
+                throw new NullReferenceException();
+            
+            // add rating to both dictionaries
+            ratedBooks.Add(book, rating);
+            book.bookRating.Add(this, rating);
         }
     }
 
