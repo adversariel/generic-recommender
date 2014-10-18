@@ -80,5 +80,17 @@ namespace RecEngModel
             r.addRating(b, (float)5.0);
             Assert.AreEqual(b.bookRating[r], (float)5.0);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(Model.AlreadyExistsException))]
+        public void TestAddBookWithBook()
+        {
+            Model m = new Model();
+            Book b = new Book("Microcosm", "Carl Zimmer");
+            m.addBook(b);
+            m.addBook("Microcosm", "Carl Zimmer");
+        }
+
+        
     }
 }

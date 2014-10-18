@@ -12,14 +12,20 @@ namespace RecEngModel
         List<Book> bookList;
         List<Rater> raterList;
          
-        // Model object to be passed to viewer and controller.
+        /// <summary>
+        /// Model object to be passed to viewer and controller.
+        /// </summary>
         public Model()
         {
             bookList = new List<Book>();
             raterList = new List<Rater>();
         }
 
-        // get Book object by title and author
+        /// <summary>
+        /// Gets Book object by title and author
+        /// </summary>
+        /// <param name="title">Book title</param>
+        /// <param name="author">Book author</param>
         public Book getBook(String title, String author)
         {
             foreach (Book book in bookList)
@@ -31,8 +37,12 @@ namespace RecEngModel
             }
             return null;
         }
-
-        // get Book object by title. Returns a list of books with that title
+        
+        /// <summary>
+        /// Get Book object by title
+        /// </summary>
+        /// <param name="title">Book title</param>
+        /// <returns>Returns a list of books with the specified title</returns>
         public List<Book> getBookByTitle(String title)
         {
             List<Book> match = new List<Book>();
@@ -45,8 +55,12 @@ namespace RecEngModel
             }
             return match;
         }
-
-        // get Book object by author. Returns a list of books with that author
+ 
+        /// <summary>
+        /// Get Book object by author
+        /// </summary>
+        /// <param name="author">Book author</param>
+        /// <returns>Returns a list of books with the specified author</returns>
         public List<Book> getBookByAuthor(String author)
         {
             List<Book> match = new List<Book>();
@@ -60,7 +74,11 @@ namespace RecEngModel
             return match;
         }
 
-        // get Rater by name
+        /// <summary>
+        /// Get Rater by name
+        /// </summary>
+        /// <param name="name">Rater name</param>
+        /// <returns>Returns a rater</returns>
         public Rater getRater(String name)
         {
             foreach(Rater bookworm in raterList)
@@ -74,13 +92,21 @@ namespace RecEngModel
         }
 
         // add Book
+        /// <summary>
+        /// Add Book to list of books
+        /// </summary>
+        /// <param name="title">Book title</param>
+        /// <param name="author">Book author</param>
         public void addBook(String title, String author)
         {
             Book newBook = new Book(title, author);
             addBook(newBook);
         }
 
-        // add Book - this method is used to add already-existing books to the system
+        /// <summary>
+        /// Add Book to list of books. This method is used to add already-existing Book objects to the system.
+        /// </summary>
+        /// <param name="book">Book object</param>
         public void addBook(Book book)
         {
             if (getBook(book.title, book.author) == null)
@@ -92,14 +118,20 @@ namespace RecEngModel
                 throw new AlreadyExistsException();
         }
 
-        // add Rater
+        /// <summary>
+        /// Add Rater to list of raters
+        /// </summary>
+        /// <param name="name">Rater name</param>
         public void addRater(String name)
         {
             Rater newRater = new Rater(name);
             addRater(newRater);
         }
 
-        // add Rater - this method is used to add already-existing raters to the system
+        /// <summary>
+        /// Add Rater to the list of raters. This method is used to add already-existing raters to the system.
+        /// </summary>
+        /// <param name="bookworm">Rater name</param>
         public void addRater(Rater bookworm)
         {
             if (getRater(bookworm.name) == null)
@@ -111,7 +143,9 @@ namespace RecEngModel
                 throw new AlreadyExistsException();
         }
 
-        // exception definition
+        /// <summary>
+        /// Exception for if a Rater or Book already exists in the system
+        /// </summary>
         public class AlreadyExistsException : System.Exception { }
     }
 
@@ -124,7 +158,11 @@ namespace RecEngModel
         public String author;
         public Dictionary<Rater, float> bookRating;
 
-        // constructor
+        /// <summary>
+        /// Constructs a Book object.
+        /// </summary>
+        /// <param name="title">Book title</param>
+        /// <param name="author">Book author</param>
         public Book(String title, String author)
         {
             this.title = title;
@@ -132,8 +170,11 @@ namespace RecEngModel
             this.bookRating = new Dictionary<Rater, float>();
         }
 
-        // operator overload
-        // NOTE: we don't override getHashCode() because it isn't used in our override of .Equals
+        /// <summary>
+        /// Operator overload for .Equals method. We don't need to override getHashCode() because it isn't used in our override of .Equals
+        /// </summary>
+        /// <param name="book">Book object to compare</param>
+        /// <returns>Returns boolean value indicating if two Book objects are the same</returns>
         public override bool Equals(Object book)
         {
             try
@@ -147,7 +188,11 @@ namespace RecEngModel
             }
         }
 
-        // add rating to bookRating dictionary
+        /// <summary>
+        /// Adds a rater and a rating on a book to the book rating dictionary. 
+        /// </summary>
+        /// <param name="rater">Rater object</param>
+        /// <param name="rating"></param>
         public void addRating(Rater rater, float rating)
         {
             // check if rater exists
@@ -168,15 +213,21 @@ namespace RecEngModel
         public String name;
         public Dictionary<Book, float> ratedBooks;
 
-        // constructor
+        /// <summary>
+        /// Constructs a Rater object
+        /// </summary>
+        /// <param name="name">Rater name</param>
         public Rater(String name)
         {
             this.name = name;
             this.ratedBooks = new Dictionary<Book, float>();
         }
 
-        // operator overload
-        // NOTE: we don't override getHashCode() because it isn't used in our override of .Equals
+        /// <summary>
+        /// Operator overload for .Equals method. We don't need to override getHashCode() because it isn't used in our override of .Equals
+        /// </summary>
+        /// <param name="bookworm">Rater object to compare</param>
+        /// <returns>Returns boolean value indicating if two Rater objects are the same</returns>
         public override bool Equals(Object bookworm)
         {
             try
@@ -190,7 +241,11 @@ namespace RecEngModel
             }
         }
 
-        // add rating to ratedBooks dictionary
+        /// <summary>
+        /// Adds rating to rated book dictionary
+        /// </summary>
+        /// <param name="book">Book being rated</param>
+        /// <param name="rating">Book rating</param>
         public void addRating(Book book, float rating)
         {
             // check if book exists
