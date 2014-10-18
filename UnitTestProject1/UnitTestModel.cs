@@ -91,6 +91,33 @@ namespace RecEngModel
             m.addBook("Microcosm", "Carl Zimmer");
         }
 
-        
+        [TestMethod]
+        public void TestPearson()
+        {
+            Model m = new Model();
+            Book a = new Book("Matrix Analysis", "Roger Horn");
+            Book b = new Book("Matrix Computations", "Gene Golub");
+            Book c = new Book("The Matrix", "The Wachowskis");
+            Rater one = new Rater("Bertrand Russell");
+            Rater two = new Rater("William Hamilton");
+            Rater three = new Rater("Johann Gauss");
+            Rater four = new Rater("Georg Frobenius");
+
+            m.addBook(a);
+            m.addBook(b);
+            m.addBook(c);
+            a.addRating(one, 5.0);
+            a.addRating(two, 5.0);
+            a.addRating(four, 5.0);
+            b.addRating(one, 5.0);
+            b.addRating(three, 5.0);
+            b.addRating(four, 5.0);
+
+            double pcc1 = m.PearsonCorrelation(a, b);
+            double pcc2 = m.PearsonCorrelation(b, a);
+
+            Assert.AreEqual(pcc1, pcc2);
+        }
+
     }
 }

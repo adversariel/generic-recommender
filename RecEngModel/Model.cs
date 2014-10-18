@@ -147,6 +147,60 @@ namespace RecEngModel
         /// Exception for if a Rater or Book already exists in the system
         /// </summary>
         public class AlreadyExistsException : System.Exception { }
+
+        /// <summary>
+        /// Calculates the Pearson correlation coefficient on the reviews for two books
+        /// </summary>
+        /// <param name="targetBook">Selected book</param>
+        /// <param name="comparisonBook">Book being compared</param>
+        /// <returns>Returns a double between -1 and 1 that describes how correlated two Book objects are in terms of reviews</returns>
+        public double PearsonCorrelation(Book targetBook, Book comparisonBook)
+        {
+            
+            // get list of raters who have reviewed both books
+            List<Rater> similarRaters = new List<Rater>();
+            similarRaters = targetBook.bookRating.Keys.Intersect(comparisonBook.bookRating.Keys).ToList();
+
+            // if the books don't have any raters in common, return 0
+            if (similarRaters.Count == 0)
+            {
+                return 0;
+            }
+
+            // sum up the reviews of the target and comparison book
+            double targetReviews = 0.0;
+            double comparisonReviews = 0.0;
+            foreach (Rater r in similarRaters)
+            {
+                targetReviews += targetBook.bookRating[r];
+                comparisonReviews += comparisonBook.bookRating[r];
+            }
+
+            // sum up the squares of the reviews
+            double targetReviews2 = 0.0;
+            double comparisonReviews2 = 0.0;
+            foreach (Rater r in similarRaters)
+            {
+                targetReviews2 += Math.Pow(targetBook.bookRating[r], 2);
+                comparisonReviews2 += Math.Pow(comparisonBook.bookRating[r], 2);
+            }
+
+            // sum the products
+            double reviewProduct = 0.0;
+            foreach (Rater r in similarRaters)
+            {
+                reviewProduct += targetBook.bookRating[r] * comparisonBook.bookRating[r];
+            }
+
+            // calculate coefficient
+            double numerator = reviewProduct - ((targetReviews * comparisonReviews) / similarRaters.Count);
+            double denominator = (double) Math.Sqrt((targetReviews2 - Math.Pow(targetReviews, 2) / similarRaters.Count) * ((comparisonReviews2 - Math.Pow(comparisonReviews, 2)) / similarRaters.Count));
+
+            if (denominator == 0)
+                return 0;
+
+            return numerator / denominator;
+        }
     }
 
     /// <summary>
@@ -156,7 +210,7 @@ namespace RecEngModel
     {
         public String title;
         public String author;
-        public Dictionary<Rater, float> bookRating;
+        public Dictionary<Rater, double> bookRating;
 
         /// <summary>
         /// Constructs a Book object.
@@ -167,7 +221,7 @@ namespace RecEngModel
         {
             this.title = title;
             this.author = author;
-            this.bookRating = new Dictionary<Rater, float>();
+            this.bookRating = new Dictionary<Rater, double>();
         }
 
         /// <summary>
@@ -193,7 +247,7 @@ namespace RecEngModel
         /// </summary>
         /// <param name="rater">Rater object</param>
         /// <param name="rating"></param>
-        public void addRating(Rater rater, float rating)
+        public void addRating(Rater rater, double rating)
         {
             // check if rater exists
             if (rater == null)
@@ -211,7 +265,7 @@ namespace RecEngModel
     public class Rater
     {
         public String name;
-        public Dictionary<Book, float> ratedBooks;
+        public Dictionary<Book, double> ratedBooks;
 
         /// <summary>
         /// Constructs a Rater object
@@ -220,7 +274,7 @@ namespace RecEngModel
         public Rater(String name)
         {
             this.name = name;
-            this.ratedBooks = new Dictionary<Book, float>();
+            this.ratedBooks = new Dictionary<Book, double>();
         }
 
         /// <summary>
@@ -246,7 +300,7 @@ namespace RecEngModel
         /// </summary>
         /// <param name="book">Book being rated</param>
         /// <param name="rating">Book rating</param>
-        public void addRating(Book book, float rating)
+        public void addRating(Book book, double rating)
         {
             // check if book exists
             if (book == null)
