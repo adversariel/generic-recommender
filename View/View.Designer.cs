@@ -43,10 +43,12 @@
             this.queryBox.Name = "queryBox";
             this.queryBox.Size = new System.Drawing.Size(282, 20);
             this.queryBox.TabIndex = 0;
+            this.queryBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.queryBox_KeyDown);
             // 
             // goButton
             // 
             this.goButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(153)))), ((int)(((byte)(84)))));
+            this.goButton.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.goButton.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.goButton.ForeColor = System.Drawing.SystemColors.ButtonFace;
             this.goButton.Location = new System.Drawing.Point(398, 146);
@@ -94,10 +96,10 @@
             this.label4.Font = new System.Drawing.Font("Century Gothic", 12F);
             this.label4.Location = new System.Drawing.Point(124, 64);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(305, 63);
+            this.label4.Size = new System.Drawing.Size(364, 63);
             this.label4.TabIndex = 5;
-            this.label4.Text = "1. Type in a book title you enjoy\r\n2. Press Go\r\n3. Get a list of book recommendat" +
-    "ions";
+            this.label4.Text = "1. Type in a book title you enjoy\r\n2. Press Go\r\n3. Get a ranked list of book reco" +
+    "mmendations";
             // 
             // recBox
             // 
