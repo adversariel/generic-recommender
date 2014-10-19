@@ -201,6 +201,21 @@ namespace RecEngModel
 
             return numerator / denominator;
         }
+
+        /// <summary>
+        /// Creates a list of recommended books using the Pearson Correlation Coefficient
+        /// </summary>
+        /// <param name="book">Book for which to get recommendations</param>
+        /// <returns>Returns a list of recommended books</returns>
+        public List<Book> getRecommendation(Book book)
+        {
+            // create sublist that excludes the target book
+            List<Book> list = bookList.Where(x => x.title != book.title).ToList();
+            
+            // run through list and compute Pearson Correlation Coefficient for each list item and the target book
+            list.OrderBy(x => PearsonCorrelation(book, x)).ToList();
+            return list;
+        }
     }
 
     /// <summary>

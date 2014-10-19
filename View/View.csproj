@@ -55,6 +55,12 @@
       <DependentUpon>View.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RecEngModel\RecEngModel.csproj">
+      <Project>{b92caf5e-ad68-4498-80c9-5707e1513817}</Project>
+      <Name>RecEngModel</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
