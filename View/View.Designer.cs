@@ -28,35 +28,34 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.queryBox = new System.Windows.Forms.TextBox();
+            this.goButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.recBox = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
-            // textBox1
+            // queryBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(113, 151);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(282, 20);
-            this.textBox1.TabIndex = 0;
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.queryBox.Location = new System.Drawing.Point(113, 151);
+            this.queryBox.Name = "queryBox";
+            this.queryBox.Size = new System.Drawing.Size(282, 20);
+            this.queryBox.TabIndex = 0;
             // 
-            // button1
+            // goButton
             // 
-            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(153)))), ((int)(((byte)(84)))));
-            this.button1.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.button1.Location = new System.Drawing.Point(398, 146);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 30);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "go";
-            this.button1.UseVisualStyleBackColor = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.goButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(153)))), ((int)(((byte)(84)))));
+            this.goButton.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.goButton.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.goButton.Location = new System.Drawing.Point(398, 146);
+            this.goButton.Name = "goButton";
+            this.goButton.Size = new System.Drawing.Size(75, 30);
+            this.goButton.TabIndex = 1;
+            this.goButton.Text = "go";
+            this.goButton.UseVisualStyleBackColor = false;
+            this.goButton.Click += new System.EventHandler(this.goButton_Click);
             // 
             // label1
             // 
@@ -100,17 +99,16 @@
             this.label4.Text = "1. Type in a book title you enjoy\r\n2. Press Go\r\n3. Get a list of book recommendat" +
     "ions";
             // 
-            // listBox1
+            // recBox
             // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.Items.AddRange(new object[] {
+            this.recBox.FormattingEnabled = true;
+            this.recBox.Items.AddRange(new object[] {
             "No matches found"});
-            this.listBox1.Location = new System.Drawing.Point(113, 183);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(282, 69);
-            this.listBox1.TabIndex = 6;
-            this.listBox1.Visible = false;
-            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
+            this.recBox.Location = new System.Drawing.Point(113, 183);
+            this.recBox.Name = "recBox";
+            this.recBox.Size = new System.Drawing.Size(282, 69);
+            this.recBox.TabIndex = 6;
+            this.recBox.Visible = false;
             // 
             // View
             // 
@@ -118,13 +116,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.Controls.Add(this.listBox1);
+            this.Controls.Add(this.recBox);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.goButton);
+            this.Controls.Add(this.queryBox);
             this.Name = "View";
             this.Size = new System.Drawing.Size(541, 281);
             this.ResumeLayout(false);
@@ -134,12 +132,12 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.TextBox queryBox;
+        private System.Windows.Forms.Button goButton;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.ListBox recBox;
     }
 }
