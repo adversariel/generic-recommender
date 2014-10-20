@@ -14,6 +14,8 @@ namespace View
     public partial class View: UserControl
     {
         Model m;
+        bool first = false;
+        Book queryBook;
         
         /// <summary>
         /// Constructs a View object
@@ -48,38 +50,79 @@ namespace View
         /// <summary>
         /// Event handler for Go button click
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void goButton_Click(object sender, EventArgs e)
         {
             string title = queryBox.Text;
+            if (title == "")
+            {
+                MessageBox.Show("You must enter a title to get a recommendation.");
+            }
             try
             {
-                Book book = m.getBookByTitle(title)[0];
-                List<Book> recs = m.getRecommendation(book);
+                queryBook = m.getBookByTitle(title)[0];
+                List<Book> recommendations = m.getRecommendation(queryBook);
+                List<string> list = new List<string>();
+                foreach (Book b in recommendations)
+                {
+                    list.Add(b.title);
+                }
 
-                recBox.DataSource = recs;
-                recBox.Visible = true;
+                first = true;
+                recBox.DataSource = list;
+                
             }
-            catch
+            catch 
             {
-
+                first = true;
+                recBox.DataSource = new List<string>(){"No matches found"};
             }
+            recBox.Visible = true;
         }
         
         /// <summary>
         /// Event handler for Enter key
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void queryBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
                 goButton.PerformClick();
-                
             }
         }
-        
+
+        /// <summary>
+        /// Event handler for recommendation box item selection
+        /// </summary>
+        private void recBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (!first)
+            {
+                try
+                {
+                    string current = (string)recBox.Items[recBox.SelectedIndex];
+                    Book b = m.getBookByTitle(current)[0];
+                    string title = b.title;
+                    titleLabel.Text = title;
+                    string author = b.author;
+                    authorLabel.Text = author;
+                    double corrRating = m.PearsonCorrelation(queryBook, b);
+                    double scaledRating = (corrRating + 1) * 2 + 1;
+                    if (corrRating == 0.0)              // math hack for edge cases of numerical instability
+                    {
+                        double sum = 0.0;
+                        foreach (KeyValuePair<Rater, double> r in b.bookRating)
+                        {
+                            sum += r.Value;
+                        }
+                        scaledRating = sum / b.bookRating.Count;
+                    }
+
+                    ratingLabel.Text = Math.Round(scaledRating, 2).ToString();
+                    ratingLabel.Visible = true;
+                }
+                catch { }
+            }
+            first = false;
+        } 
     }
 }

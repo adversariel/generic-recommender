@@ -156,7 +156,6 @@ namespace RecEngModel
         /// <returns>Returns a double between -1 and 1 that describes how correlated two Book objects are in terms of reviews</returns>
         public double PearsonCorrelation(Book targetBook, Book comparisonBook)
         {
-            
             // get list of raters who have reviewed both books
             List<Rater> similarRaters = new List<Rater>();
             similarRaters = targetBook.bookRating.Keys.Intersect(comparisonBook.bookRating.Keys).ToList();
@@ -193,8 +192,8 @@ namespace RecEngModel
             }
 
             // calculate coefficient
-            double numerator = reviewProduct - ((targetReviews * comparisonReviews) / similarRaters.Count);
-            double denominator = (double) Math.Sqrt((targetReviews2 - Math.Pow(targetReviews, 2) / similarRaters.Count) * ((comparisonReviews2 - Math.Pow(comparisonReviews, 2)) / similarRaters.Count));
+            double numerator = reviewProduct - (similarRaters.Count * (targetReviews * comparisonReviews));
+            double denominator = Math.Sqrt((similarRaters.Count * targetReviews2 - Math.Pow(targetReviews, 2)) * ((similarRaters.Count * comparisonReviews2 - Math.Pow(comparisonReviews, 2))));
 
             if (denominator == 0)
                 return 0;
