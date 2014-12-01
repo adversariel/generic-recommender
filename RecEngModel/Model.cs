@@ -3,150 +3,137 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MySql.Data.MySqlClient; 
 
 namespace RecEngModel
 {
     public class Model
     {
-        // lists to search through books and raters
-        List<Book> bookList;
-        List<Rater> raterList;
-         
+        // MySQL string. 
+        // Yes, this information works (as of this commit). If you drop my tables, I'll be sad.
+        private string str = "server=155.97.209.239;" +
+                             "uid=ariel;" +
+                             "pwd=validpassword1;" +
+                             "database=recommender; ";
+
         /// <summary>
         /// Model object to be passed to viewer and controller.
         /// </summary>
         public Model()
         {
-            bookList = new List<Book>();
-            raterList = new List<Rater>();
+            
         }
 
         /// <summary>
-        /// Gets Book object by title and author
+        /// Connects to the MySQL database and returns a list of ratings of the input book.
         /// </summary>
-        /// <param name="title">Book title</param>
-        /// <param name="author">Book author</param>
-        public Book getBook(String title, String author)
+        /// <param name="book"></param>
+        /// <returns>Returns list of ratings from raters who have rated the input book.</returns>
+        public List<String[]> getData(string book)
         {
-            foreach (Book book in bookList)
+            List<String[]> ratings = new List<String[]>();
+            
+            // instancing and object handling
+            using (MySqlConnection myConnection = new MySqlConnection(str)) 
             {
-                if (book.title.Equals(title) && book.author.Equals(author))
+                // connection handling
+                try
                 {
-                    return book;
+                    myConnection.Open();
+                    
+                    // get the book ID
+                    string bookstr1 = "SELECT ID FROM books WHERE Title=" + book + " LIMIT 1;";
+                    MySqlCommand comm1 = new MySqlCommand(bookstr1,myConnection);
+                    string id1 = Convert.ToString(comm1.ExecuteScalar());
+                    if(id1 == "")
+                    {
+                        throw new Exception("Book not found: " + book);
+                    }
+
+                    // get list of all ratings by raters who have read the book
+                    string sqlstr = "select * from ratings where ID in (select ID from ratings where Book="+id1+");";
+                    MySqlCommand comm = new MySqlCommand(sqlstr,myConnection);
+                    using (MySqlDataReader myReader = comm.ExecuteReader())
+                    {
+                        // get a line of the list
+                        while (myReader.Read())
+                        {
+                            String[] data = new String[3];
+                            data[0] = myReader.GetString(0);
+                            data[1] = myReader.GetString(1);
+                            data[2] = myReader.GetString(2);
+                            ratings.Add(data);
+                        }
+                    }
+                }
+                finally
+                {
+                    myConnection.Close();
                 }
             }
-            return null;
+            return ratings;
         }
-        
+
         /// <summary>
-        /// Get Book object by title
+        /// Helper method to get book data from MySQL database.
         /// </summary>
-        /// <param name="title">Book title</param>
-        /// <returns>Returns a list of books with the specified title</returns>
-        public List<Book> getBookByTitle(String title)
+        /// <param name="sqlstring"></param>
+        /// <returns>Returns scalar value.</returns>
+        public string sqlConnection(string sqlstring)
         {
-            List<Book> match = new List<Book>();
-            foreach (Book book in bookList)
+            using (MySqlConnection myConnection = new MySqlConnection(str))
             {
-                if(book.title.Equals(title))
+                // connection handling
+                try
                 {
-                    match.Add(book);
+                    myConnection.Open();
+                    MySqlCommand comm = new MySqlCommand(sqlstring, myConnection);
+                    string id = Convert.ToString(comm.ExecuteScalar());
+                    if (id == "")
+                    {
+                        throw new Exception("Book not found");
+                    }
+                    return id;
+                }
+                finally
+                {
+                    myConnection.Close();
                 }
             }
-            return match;
-        }
- 
-        /// <summary>
-        /// Get Book object by author
-        /// </summary>
-        /// <param name="author">Book author</param>
-        /// <returns>Returns a list of books with the specified author</returns>
-        public List<Book> getBookByAuthor(String author)
-        {
-            List<Book> match = new List<Book>();
-            foreach (Book book in bookList)
-            {
-                if (book.author.Equals(author))
-                {
-                    match.Add(book);
-                }
-            }
-            return match;
         }
 
         /// <summary>
-        /// Get Rater by name
+        /// Get book ID from MySQL.
         /// </summary>
-        /// <param name="name">Rater name</param>
-        /// <returns>Returns a rater</returns>
-        public Rater getRater(String name)
+        /// <param name="bookname"></param>
+        /// <returns>Returns book ID.</returns>
+        public string getID(string bookname)
         {
-            foreach(Rater bookworm in raterList)
-            {
-                if (bookworm.name.Equals(name))
-                {
-                    return bookworm;
-                }
-            }
-            return null;
-        }
-
-        // add Book
-        /// <summary>
-        /// Add Book to list of books
-        /// </summary>
-        /// <param name="title">Book title</param>
-        /// <param name="author">Book author</param>
-        public void addBook(String title, String author)
-        {
-            Book newBook = new Book(title, author);
-            addBook(newBook);
+            string bookstr = "SELECT ID FROM books WHERE Title=" + bookname + " LIMIT 1;";
+            return sqlConnection(bookstr);
         }
 
         /// <summary>
-        /// Add Book to list of books. This method is used to add already-existing Book objects to the system.
+        /// Get book author from MySQL.
         /// </summary>
-        /// <param name="book">Book object</param>
-        public void addBook(Book book)
+        /// <param name="bookname"></param>
+        /// <returns>Returns book author.</returns>
+        public string getAuthor(string bookname)
         {
-            if (getBook(book.title, book.author) == null)
-            {
-                Book newBook = book;
-                bookList.Add(newBook);
-            }
-            else
-                throw new AlreadyExistsException();
+            string bookstr = "SELECT Author FROM books WHERE Title=" + bookname + " LIMIT 1;";
+            return sqlConnection(bookstr);
         }
 
         /// <summary>
-        /// Add Rater to list of raters
+        /// Get book title from MySQL.
         /// </summary>
-        /// <param name="name">Rater name</param>
-        public void addRater(String name)
+        /// <param name="bookID"></param>
+        /// <returns>Returns book title</returns>
+        public string getTitle(string bookID)
         {
-            Rater newRater = new Rater(name);
-            addRater(newRater);
+            string bookstr = "SELECT Title FROM books WHERE ID=" + bookID + " LIMIT 1;";
+            return sqlConnection(bookstr);
         }
-
-        /// <summary>
-        /// Add Rater to the list of raters. This method is used to add already-existing raters to the system.
-        /// </summary>
-        /// <param name="bookworm">Rater name</param>
-        public void addRater(Rater bookworm)
-        {
-            if (getRater(bookworm.name) == null)
-            {
-                Rater newRater = new Rater(bookworm.name);
-                raterList.Add(newRater);
-            }
-            else
-                throw new AlreadyExistsException();
-        }
-
-        /// <summary>
-        /// Exception for if a Rater or Book already exists in the system
-        /// </summary>
-        public class AlreadyExistsException : System.Exception { }
 
         /// <summary>
         /// Calculates the Pearson correlation coefficient on the reviews for two books
@@ -154,11 +141,22 @@ namespace RecEngModel
         /// <param name="targetBook">Selected book</param>
         /// <param name="comparisonBook">Book being compared</param>
         /// <returns>Returns a double between -1 and 1 that describes how correlated two Book objects are in terms of reviews</returns>
-        public double PearsonCorrelation(Book targetBook, Book comparisonBook)
+        public double PearsonCorrelation(string targetBook, string comparisonBook, List<String[]> ratings)
         {
             // get list of raters who have reviewed both books
-            List<Rater> similarRaters = new List<Rater>();
-            similarRaters = targetBook.bookRating.Keys.Intersect(comparisonBook.bookRating.Keys).ToList();
+            Dictionary<string,double> similarRaters = new Dictionary<string,double>();
+            Dictionary<string,double> primaryRaters = new Dictionary<string,double>();
+            foreach (String[] rating in ratings)
+            {
+                if(rating[1]==comparisonBook){
+                    if(!primaryRaters.ContainsKey(rating[0]))
+                    similarRaters.Add(rating[0],Convert.ToDouble(rating[2]));
+                }
+                if(rating[1]==targetBook){
+                    if(!primaryRaters.ContainsKey(rating[0]))
+                        primaryRaters.Add(rating[0],Convert.ToDouble(rating[2]));
+                }
+            }
 
             // if the books don't have any raters in common, return 0
             if (similarRaters.Count == 0)
@@ -169,26 +167,26 @@ namespace RecEngModel
             // sum up the reviews of the target and comparison book
             double targetReviews = 0.0;
             double comparisonReviews = 0.0;
-            foreach (Rater r in similarRaters)
+            foreach (KeyValuePair<string,double> r in similarRaters)
             {
-                targetReviews += targetBook.bookRating[r];
-                comparisonReviews += comparisonBook.bookRating[r];
+                targetReviews += primaryRaters[r.Key];
+                comparisonReviews += similarRaters[r.Key];
             }
 
             // sum up the squares of the reviews
             double targetReviews2 = 0.0;
             double comparisonReviews2 = 0.0;
-            foreach (Rater r in similarRaters)
+            foreach (KeyValuePair<string,double> r in similarRaters)
             {
-                targetReviews2 += Math.Pow(targetBook.bookRating[r], 2);
-                comparisonReviews2 += Math.Pow(comparisonBook.bookRating[r], 2);
+                targetReviews2 += Math.Pow(similarRaters[r.Key], 2);
+                comparisonReviews2 += Math.Pow(primaryRaters[r.Key], 2);
             }
 
             // sum the products
             double reviewProduct = 0.0;
-            foreach (Rater r in similarRaters)
+            foreach (KeyValuePair<string,double> r in similarRaters)
             {
-                reviewProduct += targetBook.bookRating[r] * comparisonBook.bookRating[r];
+                reviewProduct += primaryRaters[r.Key] * similarRaters[r.Key];
             }
 
             // calculate coefficient
@@ -206,123 +204,30 @@ namespace RecEngModel
         /// </summary>
         /// <param name="book">Book for which to get recommendations</param>
         /// <returns>Returns a list of recommended books</returns>
-        public List<Book> getRecommendation(Book book)
+        public List<String> getRecommendation(String book)
         {
-            // create sublist that excludes the target book
-            List<Book> list = bookList.Where(x => x.title != book.title).ToList();
+            List<String[]> ratings = getData(book);
+
+            string bookID = getID(book);
+
+            // create sublist  that contains recommended books
+            HashSet<string> list = new HashSet<string>();
+            foreach (String[] r in ratings)
+            {
+                if (r[1] != bookID)
+                {
+                    list.Add(r[1]);
+                }
+            }
             
             // run through list and compute Pearson Correlation Coefficient for each list item and the target book
-            list.OrderBy(x => PearsonCorrelation(book, x)).ToList();
-            return list;
-        }
-    }
-
-    /// <summary>
-    /// Book object for recommendation system.
-    /// </summary>
-    public class Book
-    {
-        public String title;
-        public String author;
-        public Dictionary<Rater, double> bookRating;
-
-        /// <summary>
-        /// Constructs a Book object.
-        /// </summary>
-        /// <param name="title">Book title</param>
-        /// <param name="author">Book author</param>
-        public Book(String title, String author)
-        {
-            this.title = title;
-            this.author = author;
-            this.bookRating = new Dictionary<Rater, double>();
-        }
-
-        /// <summary>
-        /// Operator overload for .Equals method. We don't need to override getHashCode() because it isn't used in our override of .Equals
-        /// </summary>
-        /// <param name="book">Book object to compare</param>
-        /// <returns>Returns boolean value indicating if two Book objects are the same</returns>
-        public override bool Equals(Object book)
-        {
-            try
+            List<string> ids = list.OrderBy(x => PearsonCorrelation(bookID, x, ratings)).ToList();
+            List<string> names = new List<string>();
+            foreach (string id in ids)
             {
-                Book b = (Book)book;
-                return (this.author.Equals(b.author)) || (this.title.Equals(b.title));
+                names.Add(getTitle(id));
             }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Adds a rater and a rating on a book to the book rating dictionary. 
-        /// </summary>
-        /// <param name="rater">Rater object</param>
-        /// <param name="rating"></param>
-        public void addRating(Rater rater, double rating)
-        {
-            // check if rater exists
-            if (rater == null)
-                throw new NullReferenceException();
-
-            // add rating to both dictionaries
-            bookRating.Add(rater, rating);
-            rater.ratedBooks.Add(this, rating);
-        }
-    }
-
-    /// <summary>
-    /// Rater object for recommendation system.
-    /// </summary>
-    public class Rater
-    {
-        public String name;
-        public Dictionary<Book, double> ratedBooks;
-
-        /// <summary>
-        /// Constructs a Rater object
-        /// </summary>
-        /// <param name="name">Rater name</param>
-        public Rater(String name)
-        {
-            this.name = name;
-            this.ratedBooks = new Dictionary<Book, double>();
-        }
-
-        /// <summary>
-        /// Operator overload for .Equals method. We don't need to override getHashCode() because it isn't used in our override of .Equals
-        /// </summary>
-        /// <param name="bookworm">Rater object to compare</param>
-        /// <returns>Returns boolean value indicating if two Rater objects are the same</returns>
-        public override bool Equals(Object bookworm)
-        {
-            try
-            {
-                Rater r = (Rater)bookworm;
-                return (this.name.Equals(r.name));
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Adds rating to rated book dictionary
-        /// </summary>
-        /// <param name="book">Book being rated</param>
-        /// <param name="rating">Book rating</param>
-        public void addRating(Book book, double rating)
-        {
-            // check if book exists
-            if (book == null)
-                throw new NullReferenceException();
-            
-            // add rating to both dictionaries
-            ratedBooks.Add(book, rating);
-            book.bookRating.Add(this, rating);
+            return names;
         }
     }
 
