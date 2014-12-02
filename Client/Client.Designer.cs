@@ -1,4 +1,4 @@
-﻿namespace View
+﻿namespace Client
 {
     partial class View
     {
@@ -38,9 +38,8 @@
             this.bookDetails = new System.Windows.Forms.Label();
             this.titleLabel = new System.Windows.Forms.Label();
             this.authorLabel = new System.Windows.Forms.Label();
-            this.staticPredicted = new System.Windows.Forms.Label();
-            this.ratingLabel = new System.Windows.Forms.Label();
-            this.metricLabel = new System.Windows.Forms.Label();
+            this.loadingBar = new System.Windows.Forms.ProgressBar();
+            this.loadingLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // queryBox
@@ -149,35 +148,25 @@
             this.authorLabel.TabIndex = 9;
             this.authorLabel.Text = "Author";
             // 
-            // staticPredicted
+            // loadingBar
             // 
-            this.staticPredicted.AutoSize = true;
-            this.staticPredicted.Font = new System.Drawing.Font("Century Gothic", 11F);
-            this.staticPredicted.Location = new System.Drawing.Point(478, 166);
-            this.staticPredicted.Name = "staticPredicted";
-            this.staticPredicted.Size = new System.Drawing.Size(171, 20);
-            this.staticPredicted.TabIndex = 10;
-            this.staticPredicted.Text = "Your predicted rating: ";
+            this.loadingBar.Location = new System.Drawing.Point(429, 218);
+            this.loadingBar.Name = "loadingBar";
+            this.loadingBar.Size = new System.Drawing.Size(225, 23);
+            this.loadingBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            this.loadingBar.TabIndex = 10;
+            this.loadingBar.Visible = false;
             // 
-            // ratingLabel
+            // loadingLabel
             // 
-            this.ratingLabel.AutoSize = true;
-            this.ratingLabel.Font = new System.Drawing.Font("Century Gothic", 12F);
-            this.ratingLabel.Location = new System.Drawing.Point(512, 214);
-            this.ratingLabel.Name = "ratingLabel";
-            this.ratingLabel.Size = new System.Drawing.Size(81, 21);
-            this.ratingLabel.TabIndex = 11;
-            this.ratingLabel.Text = "no rating";
-            this.ratingLabel.Visible = false;
-            // 
-            // metricLabel
-            // 
-            this.metricLabel.AutoSize = true;
-            this.metricLabel.Location = new System.Drawing.Point(479, 190);
-            this.metricLabel.Name = "metricLabel";
-            this.metricLabel.Size = new System.Drawing.Size(93, 13);
-            this.metricLabel.TabIndex = 12;
-            this.metricLabel.Text = "(between 1 and 5)";
+            this.loadingLabel.AutoSize = true;
+            this.loadingLabel.Font = new System.Drawing.Font("Century Gothic", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.loadingLabel.Location = new System.Drawing.Point(425, 183);
+            this.loadingLabel.Name = "loadingLabel";
+            this.loadingLabel.Size = new System.Drawing.Size(100, 22);
+            this.loadingLabel.TabIndex = 11;
+            this.loadingLabel.Text = "Loading...";
+            this.loadingLabel.Visible = false;
             // 
             // View
             // 
@@ -186,9 +175,8 @@
             this.AutoSize = true;
             this.BackColor = System.Drawing.Color.DimGray;
             this.ClientSize = new System.Drawing.Size(708, 270);
-            this.Controls.Add(this.metricLabel);
-            this.Controls.Add(this.ratingLabel);
-            this.Controls.Add(this.staticPredicted);
+            this.Controls.Add(this.loadingLabel);
+            this.Controls.Add(this.loadingBar);
             this.Controls.Add(this.authorLabel);
             this.Controls.Add(this.titleLabel);
             this.Controls.Add(this.bookDetails);
@@ -217,8 +205,7 @@
         private System.Windows.Forms.Label bookDetails;
         private System.Windows.Forms.Label titleLabel;
         private System.Windows.Forms.Label authorLabel;
-        private System.Windows.Forms.Label staticPredicted;
-        private System.Windows.Forms.Label ratingLabel;
-        private System.Windows.Forms.Label metricLabel;
+        private System.Windows.Forms.ProgressBar loadingBar;
+        private System.Windows.Forms.Label loadingLabel;
     }
 }

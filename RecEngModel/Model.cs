@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MySql.Data.MySqlClient; 
+using System.Net.Sockets;
+using MySql.Data.MySqlClient;
+using System.Net;
+using CustomNetworking; 
 
 namespace RecEngModel
 {
@@ -16,6 +19,9 @@ namespace RecEngModel
                              "pwd=validpassword1;" +
                              "database=recommender; ";
 
+        // might recycle later
+        private TcpListener listnr = null;
+
         /// <summary>
         /// Model object to be passed to viewer and controller.
         /// </summary>
@@ -25,9 +31,121 @@ namespace RecEngModel
         }
 
         /// <summary>
+        /// Static function to run the server.
+        /// </summary>
+        /// <param name="args"></param>
+        static void Main(string[] args)
+        {
+            Model server = new Model();
+            server.Start();
+
+            // run server until something stops it
+            try
+            {
+                while(true) {}
+            }
+            // safely stops server in case of error or shut down
+            finally
+            {
+                server.Stop();
+            }
+        }
+
+        /// <summary>
+        /// Server Start() function. Runs the server.
+        /// </summary>
+        public void Start()
+        {
+            listnr = new TcpListener(IPAddress.Any, 2000);
+            listnr.Start();
+            listnr.BeginAcceptTcpClient(new AsyncCallback(newClient), listnr);
+            Console.WriteLine("New server instance created.");
+        }
+
+        /// <summary>
+        /// Server Stop() function. Shuts down the server.
+        /// </summary>
+        public void Stop()
+        {
+            listnr.Stop();
+            Console.WriteLine("Server instance terminated.");
+        }
+
+        /// <summary>
+        /// Determines what needs to happen when we get a new client.
+        /// </summary>
+        /// <param name="ar">Contains information about client</param>
+        private void newClient(IAsyncResult ar)
+        {
+            try
+            {
+                TcpClient client = listnr.EndAcceptTcpClient(ar);
+                Console.WriteLine("Connected to new Client at: " + client.Client.RemoteEndPoint);
+                StringSocket ss = new StringSocket(client.Client, new UTF8Encoding());
+                ss.BeginReceive(messageReceived, ss);
+                listnr.BeginAcceptTcpClient(new AsyncCallback(newClient), listnr);
+            }
+            catch (ObjectDisposedException){} // client hang
+        }
+
+        /// <summary>
+        /// Recieves message from client.
+        /// </summary>
+        /// <param name="message">Protocol string</param>
+        /// <param name="e">Exception thrown by String Socket (if any)</param>
+        /// <param name="payload">String Socket object</param>
+        private void messageReceived(string message, Exception e, Object payload)
+        {
+            if (message == null) { return; }
+            if (e != null)
+            {
+                throw e;
+            }
+            StringSocket ss = (StringSocket) payload;
+            Console.WriteLine("Received Message: " + message);
+            if (message.ToUpper().StartsWith("RECOMMEND"))
+            {
+                message = message.Substring(10);
+                List<String> recs = getRecommendation(message);
+                string recsString = "RECOMMEND " + string.Join(@"%%%",recs) + "\n";
+                Console.WriteLine("Sending Message: " + recsString);
+                ss.BeginSend(recsString, sendCallback, null);
+            }
+            else if (message.ToUpper().StartsWith("AUTHOR"))
+            {
+                message = message.Substring(7);
+                string author = getAuthor(message);
+                author = "AUTHOR " + author + "\n";
+                Console.WriteLine("Sending Message: " + author);
+                ss.BeginSend(author, sendCallback, null);
+            }
+            ss.BeginReceive(messageReceived, ss);
+        }
+
+        /// <summary>
+        /// Throws exceptions.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="payload"></param>
+        private void sendCallback(Exception e, Object payload)
+        {
+            if (e != null && e.GetType() != typeof(ObjectDisposedException))
+            {
+                if (e.GetType() == typeof(SocketException))
+                {
+                    Console.WriteLine("Client closed unexpectedly.");
+                }
+                else
+                {
+                    throw e;
+                }
+            }
+        }
+
+        /// <summary>
         /// Connects to the MySQL database and returns a list of ratings of the input book.
         /// </summary>
-        /// <param name="book"></param>
+        /// <param name="book">Input book string</param>
         /// <returns>Returns list of ratings from raters who have rated the input book.</returns>
         public List<String[]> getData(string book)
         {
@@ -42,12 +160,12 @@ namespace RecEngModel
                     myConnection.Open();
                     
                     // get the book ID
-                    string bookstr1 = "SELECT ID FROM books WHERE Title=" + book + " LIMIT 1;";
+                    string bookstr1 = "SELECT ID FROM books WHERE Title=\"" + book + "\" LIMIT 1;";
                     MySqlCommand comm1 = new MySqlCommand(bookstr1,myConnection);
                     string id1 = Convert.ToString(comm1.ExecuteScalar());
                     if(id1 == "")
                     {
-                        throw new Exception("Book not found: " + book);
+                        throw new Exception("Book not found");
                     }
 
                     // get list of all ratings by raters who have read the book
@@ -77,8 +195,8 @@ namespace RecEngModel
         /// <summary>
         /// Helper method to get book data from MySQL database.
         /// </summary>
-        /// <param name="sqlstring"></param>
-        /// <returns>Returns scalar value.</returns>
+        /// <param name="sqlstring">MySQL string</param>
+        /// <returns>Returns scalar value</returns>
         public string sqlConnection(string sqlstring)
         {
             using (MySqlConnection myConnection = new MySqlConnection(str))
@@ -106,10 +224,10 @@ namespace RecEngModel
         /// Get book ID from MySQL.
         /// </summary>
         /// <param name="bookname"></param>
-        /// <returns>Returns book ID.</returns>
+        /// <returns>Returns book ID</returns>
         public string getID(string bookname)
         {
-            string bookstr = "SELECT ID FROM books WHERE Title=" + bookname + " LIMIT 1;";
+            string bookstr = "SELECT ID FROM books WHERE Title=\"" + bookname + "\" LIMIT 1;";
             return sqlConnection(bookstr);
         }
 
@@ -117,10 +235,10 @@ namespace RecEngModel
         /// Get book author from MySQL.
         /// </summary>
         /// <param name="bookname"></param>
-        /// <returns>Returns book author.</returns>
-        public string getAuthor(string bookname)
+        /// <returns>Returns book author</returns>
+        public string getAuthor(string id)
         {
-            string bookstr = "SELECT Author FROM books WHERE Title=" + bookname + " LIMIT 1;";
+            string bookstr = "SELECT Author FROM books WHERE ID=\"" + id + "\" LIMIT 1;";
             return sqlConnection(bookstr);
         }
 
@@ -131,7 +249,7 @@ namespace RecEngModel
         /// <returns>Returns book title</returns>
         public string getTitle(string bookID)
         {
-            string bookstr = "SELECT Title FROM books WHERE ID=" + bookID + " LIMIT 1;";
+            string bookstr = "SELECT Title FROM books WHERE ID=\"" + bookID + "\" LIMIT 1;";
             return sqlConnection(bookstr);
         }
 
@@ -149,7 +267,7 @@ namespace RecEngModel
             foreach (String[] rating in ratings)
             {
                 if(rating[1]==comparisonBook){
-                    if(!primaryRaters.ContainsKey(rating[0]))
+                    if(!similarRaters.ContainsKey(rating[0]))
                     similarRaters.Add(rating[0],Convert.ToDouble(rating[2]));
                 }
                 if(rating[1]==targetBook){
@@ -206,7 +324,20 @@ namespace RecEngModel
         /// <returns>Returns a list of recommended books</returns>
         public List<String> getRecommendation(String book)
         {
-            List<String[]> ratings = getData(book);
+            List<String[]> ratings;
+            try
+            {
+                ratings = getData(book);
+            }
+            catch(Exception e)
+            {
+                if (e.Message == "Book not found")
+                {
+                    return new List<string>(new string[]{"0","No matches found"});
+                }
+                else
+                    throw e;
+            }
 
             string bookID = getID(book);
 
@@ -225,6 +356,7 @@ namespace RecEngModel
             List<string> names = new List<string>();
             foreach (string id in ids)
             {
+                names.Add(id);
                 names.Add(getTitle(id));
             }
             return names;

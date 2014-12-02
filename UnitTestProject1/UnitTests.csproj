@@ -35,6 +35,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="StringSocket, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\StringSocket.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <Choose>
@@ -54,6 +58,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Client\Client.csproj">
+      <Project>{17b750a2-a578-45b2-be14-2966064c6ebd}</Project>
+      <Name>Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RecEngModel\RecEngModel.csproj">
       <Project>{b92caf5e-ad68-4498-80c9-5707e1513817}</Project>
       <Name>RecEngModel</Name>

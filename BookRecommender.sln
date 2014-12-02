@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecEngModel", "RecEngModel\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTestProject1\UnitTests.csproj", "{9C64805E-62E4-4DC7-B785-2AC124AD285B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "View", "View\View.csproj", "{787F6407-EEB9-4FB7-8648-C37F8EAE9A7F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{17B750A2-A578-45B2-BE14-2966064C6EBD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{9C64805E-62E4-4DC7-B785-2AC124AD285B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C64805E-62E4-4DC7-B785-2AC124AD285B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C64805E-62E4-4DC7-B785-2AC124AD285B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{787F6407-EEB9-4FB7-8648-C37F8EAE9A7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{787F6407-EEB9-4FB7-8648-C37F8EAE9A7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{787F6407-EEB9-4FB7-8648-C37F8EAE9A7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{787F6407-EEB9-4FB7-8648-C37F8EAE9A7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17B750A2-A578-45B2-BE14-2966064C6EBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17B750A2-A578-45B2-BE14-2966064C6EBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17B750A2-A578-45B2-BE14-2966064C6EBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17B750A2-A578-45B2-BE14-2966064C6EBD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

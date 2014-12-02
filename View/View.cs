@@ -7,15 +7,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using RecEngModel;          // reference to Model
+using RecEngModel;                  // reference to Model
+using CustomNetworking;
+using System.Net.Sockets;          
 
 namespace View
 {
-    public partial class View: UserControl
+    public partial class View: Form
     {
-        Model m;
         bool first = false;
         string queryBook;
+        StringSocket ss;
+        TcpClient tc;
         
         /// <summary>
         /// Constructs a View object
@@ -23,7 +26,64 @@ namespace View
         public View()
         {
             InitializeComponent();
-            m = new Model();
+            tc = new TcpClient("155.97.209.239", 2000);
+            ss = new StringSocket(tc.Client, new UTF8Encoding());
+            ss.BeginReceive(messageReceived, ss);
+            this.FormClosing += Closing;
+        }
+
+        static void Main(string[] args)
+        {
+            View viewer = new View();
+        }
+
+        /// <summary>
+        /// Closes the client.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Closing(Object sender, FormClosingEventArgs e)
+        {
+            tc.Close();
+        }
+
+        /// <summary>
+        /// Recieves message from server.
+        /// </summary>
+        /// <param name="message">Protocol string</param>
+        /// <param name="e">Exception thrown by String Socket (if any)</param>
+        /// <param name="payload">String Socket object</param>
+        private void messageReceived(string message, Exception e, Object payload)
+        {
+            if (message.ToUpper().StartsWith("RECOMMEND "))
+            {
+                message = message.Substring(10);
+                first = true;
+                List<String> recommendations = new List<String>(message.Split(new String[]{@"%%%"}, StringSplitOptions.None));
+                recBox.DataSource = recommendations;
+                if (recommendations.Count == 0)
+                    recBox.DataSource = new List<string>() { "No matches found" };
+                recBox.Visible = true;
+            }
+            else if(message.ToUpper().StartsWith("AUTHOR "))
+            {
+                message = message.Substring(7);
+                authorLabel.Text = message;
+            }
+
+        }
+
+        /// <summary>
+        /// Throws exceptions.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="payload"></param>
+        private void sendCallback(Exception e, Object payload)
+        {
+            if (e != null && e.GetType() != typeof(ObjectDisposedException))
+            {
+                throw e;
+            }
         }
 
         /// <summary>
@@ -36,13 +96,7 @@ namespace View
             {
                 MessageBox.Show("You must enter a title to get a recommendation.");
             }
-            List<string> recommendations = m.getRecommendation(title);
-
-            first = true;
-            recBox.DataSource = recommendations;
-            if (recommendations.Count == 0)
-                recBox.DataSource = new List<string>() { "No matches found" };
-            recBox.Visible = true;
+            ss.BeginSend("RECOMMEND " + title, sendCallback, null);      
         }
         
         /// <summary>
@@ -68,8 +122,8 @@ namespace View
                     string current = (string)recBox.Items[recBox.SelectedIndex];
                     string title = current;
                     titleLabel.Text = title;
-                    string author = m.getAuthor(title);
-                    authorLabel.Text = author;
+                    ss.BeginSend("AUTHOR " + title, sendCallback, null);
+
                     double corrRating = 0.0; // m.PearsonCorrelation(queryBook, b);   FIX THIS LATER
                     double scaledRating = (corrRating + 1) * 2 + 1;
                     /*if (corrRating == 0.0)              // math hack for edge cases of numerical instability

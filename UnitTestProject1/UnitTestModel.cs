@@ -1,6 +1,10 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Net.Sockets;
+using CustomNetworking;
+using System.Text;
+using System.Threading;
 
 namespace RecEngModel
 {
@@ -8,142 +12,98 @@ namespace RecEngModel
     public class UnitTestModel
     {
         [TestMethod]
-        public void TestGetBook()
+        public void TestGetID()
         {
             Model m = new Model();
-            m.addBook("The Music of the Primes", "Marcus du Sautoy");
-            Book actual = m.getBook("The Music of the Primes", "Marcus du Sautoy");
-            Book expected = new Book("The Music of the Primes", "Marcus du Sautoy");
-            Assert.AreEqual(expected, actual);
+            string result = m.getID("1984");
+            Assert.AreEqual(result, "17");
         }
 
         [TestMethod]
-        public void TestGetBookByTitle()
+        public void TestGetAuthor()
         {
             Model m = new Model();
-            m.addBook("Godel, Escher, Bach: An Eternal Gold Braid", "Douglas Hofstadter");
-            Book actual = (m.getBookByTitle("Godel, Escher, Bach: An Eternal Gold Braid"))[0];
-            Book expected = new Book("Godel, Escher, Bach: An Eternal Gold Braid", "Douglas Hofstadter");
-            Assert.AreEqual(expected, actual);
+            string result = m.getAuthor("17");
+            Assert.AreEqual(result, "George Orwell");
         }
 
         [TestMethod]
-        public void TestGetBookByAuthor()
+        public void TestGetTitle()
         {
             Model m = new Model();
-            m.addBook("Information Arts", "Stephen Wilson");
-            Book actual = (m.getBookByAuthor("Stephen Wilson"))[0];
-            Book expected = new Book("Information Arts", "Stephen Wilson");
-            Assert.AreEqual(expected, actual);
+            string result = m.getTitle("17");
+            Assert.AreEqual(result, "1984");
         }
 
         [TestMethod]
-        public void TestGetRater()
+        public void TestClientGetAuthor()
         {
             Model m = new Model();
-            m.addRater("Morgan Freeman");
-            Rater actual = m.getRater("Morgan Freeman");
-        }
+            m.Start();
+            SSClientTest tester = new SSClientTest();
+            tester.send("AUTHOR 17\n");
 
-        [TestMethod]
-        [ExpectedException(typeof(Model.AlreadyExistsException))]
-        public void TestBookException()
-        {
-            Model m = new Model();
-            m.addBook("Visual Perception from a Computer Graphics Perspective", "William Thompson");
-            m.addBook("Visual Perception from a Computer Graphics Perspective", "William Thompson");
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(Model.AlreadyExistsException))]
-        public void TestRaterException()
-        {
-            Model m = new Model();
-            m.addRater("Roger Ebert");
-            m.addRater("Roger Ebert");
-        }
-
-        [TestMethod]
-        public void TestBookAddRating()
-        {
-            Book b = new Book("Theoretical Neuroscience", "Peter Dayan");
-            Rater r = new Rater("Santiago Ramón y Cajal");
-            b.addRating(r, (float)5.0);
-            Assert.AreEqual(r.ratedBooks[b], (float)5.0);
-        }
-
-        [TestMethod]
-        public void TestRaterAddRating()
-        {
-            Book b = new Book("The Visual Display of Quantitative Information", "Edward Tufte");
-            Rater r = new Rater("John Tukey");
-            r.addRating(b, (float)5.0);
-            Assert.AreEqual(b.bookRating[r], (float)5.0);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(Model.AlreadyExistsException))]
-        public void TestAddBookWithBook()
-        {
-            Model m = new Model();
-            Book b = new Book("Microcosm", "Carl Zimmer");
-            m.addBook(b);
-            m.addBook("Microcosm", "Carl Zimmer");
-        }
-
-        [TestMethod]
-        public void TestPearson()
-        {
-            Model m = new Model();
-            Book a = new Book("Matrix Analysis", "Roger Horn");
-            Book b = new Book("Matrix Computations", "Gene Golub");
-            Rater one = new Rater("Bertrand Russell");
-            Rater two = new Rater("William Hamilton");
-            Rater three = new Rater("Johann Gauss");
-            Rater four = new Rater("Georg Frobenius");
-
-            m.addBook(a);
-            m.addBook(b);
-            a.addRating(one, 5.0);
-            a.addRating(two, 5.0);
-            a.addRating(four, 5.0);
-            b.addRating(one, 5.0);
-            b.addRating(three, 5.0);
-            b.addRating(four, 5.0);
-
-            double pcc1 = m.PearsonCorrelation(a, b);
-            double pcc2 = m.PearsonCorrelation(b, a);
-
-            Assert.AreEqual(pcc1, pcc2);
-        }
-
-        [TestMethod]
-        public void TestPearsonRecommendations()
-        {
-            Model m = new Model();
-            Book a = new Book("Matrix Analysis", "Roger Horn");
-            Book b = new Book("Matrix Computations", "Gene Golub");
-            Book c = new Book("The Matrix", "The Wachowskis");
-            Rater one = new Rater("Bertrand Russell");
-            Rater two = new Rater("William Hamilton");
-            Rater three = new Rater("Johann Gauss");
-            Rater four = new Rater("Georg Frobenius");
-
-            m.addBook(a);
-            m.addBook(b);
-            m.addBook(c);
-            a.addRating(one, 5.0);
-            a.addRating(two, 5.0);
-            a.addRating(four, 5.0);
-            b.addRating(one, 5.0);
-            b.addRating(three, 5.0);
-            b.addRating(four, 5.0);
-            c.addRating(two, 1.0);
-            c.addRating(three, 1.0);
-            c.addRating(four, 1.0);
-
-            Book r = m.getRecommendation(a)[0];
-            Assert.AreEqual(b, r);
+            try
+            {
+                Assert.IsTrue(tester.ev.WaitOne(10000), "Client Start Failed");
+                Assert.AreEqual("AUTHOR George Orwell", tester.auth);
+            }
+            finally
+            {
+                try
+                {
+                    tester.Close();
+                    m.Stop();
+                }
+                catch { }
+            }
         }
     }
+
+    [TestClass()]
+    public class SSClientTest
+    {
+        public ManualResetEvent ev = new ManualResetEvent(false);
+        private StringSocket ss;
+        private TcpClient tc;
+        public string auth = "";
+
+        public SSClientTest()
+        {
+            tc = new TcpClient("localhost", 2000);
+            ss = new StringSocket(tc.Client, new UTF8Encoding());
+            this.receive();
+        }
+
+        public void Close()
+        {
+            tc.Close();
+        }
+
+        public void send(string command)
+        {
+            ss.BeginSend(command, sendF, null);
+        }
+
+        private void sendF(Exception e, object payload)
+        {
+            if (e != null) { throw e; }
+        }
+
+        private void receive()
+        {
+            ss.BeginReceive(receiveF, null);
+        }
+
+        private void receiveF(string command, Exception e, object payload)
+        {
+            if (command.ToUpper().StartsWith("AUTHOR "))
+            {
+                auth = command;
+                ev.Set();
+            }
+            this.receive();
+        }
+    }
+
 }
